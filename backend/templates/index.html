@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans p-6">
+    <div class="container mx-auto">
+        <h1 class="text-3xl font-bold mb-5">Welcome to the Home Page</h1>
+
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="border-l-4 border-orange-500 bg-orange-100 text-orange-800 p-3 mb-2 rounded">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            <p class="text-lg mb-4">Welcome, <strong>{{ user.username }}</strong>!</p>
+
+            <form method="post" class="mb-4">
+                {% csrf_token %}
+                <button type="submit" name="generate_keys" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Generate Keys</button>
+            </form>
+
+            {% if show_keys %}
+                <div class="bg-gray-200 p-4 rounded mb-4">
+                    <p>Your Access Token: <strong>{{ token }}</strong></p>
+                    <p>API Key: <strong>{{ api_key }}</strong></p>
+                </div>
+            {% endif %}
+
+            <form method="post" class="mb-4">
+                {% csrf_token %}
+                <input type="text" name="key" placeholder="Enter Access Token or API Key" class="border border-gray-300 p-2 rounded w-full mb-2" required>
+                <button type="submit" class="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">Submit</button>
+            </form>
+
+            {% if data %}
+                <h2 class="text-xl font-semibold mt-4">Authors</h2>
+                <ul class="mb-4">
+                    {% for author in data.authors %}
+                        <li class="bg-white border rounded p-3 mb-2">{{ author.name }} - {{ author.bio }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h2 class="text-xl font-semibold mt-4">Songs</h2>
+                <ul class="mb-4">
+                    {% for song in data.songs %}
+                        <li class="bg-white border rounded p-3 mb-2">{{ song.title }} by {{ song.author.name }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h2 class="text-xl font-semibold mt-4">Likes</h2>
+                <ul class="mb-4">
+                    {% for like in data.likes %}
+                        <li class="bg-white border rounded p-3 mb-2">{{ like.song.title }} - {{ like.count }} likes</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <form method="post" action="{% url 'logout' %}" class="mt-4">
+                {% csrf_token %}
+                <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600">Logout</button>
+            </form>
+        {% else %}
+            <p class="text-lg">You are not logged in. <a href="{% url 'login' %}" class="text-blue-500">Login</a></p>
+        {% endif %}
+    </div>
+</body>
+
+</html>
